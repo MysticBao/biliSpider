@@ -1,0 +1,19 @@
+{
+  "name": "bilibili_spider",
+  "version": "1.0.0",
+  "description": "Collect view data",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/MysticBao/biliSpider.git"
+  },
+  "author": "Mystic",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MysticBao/biliSpider/issues"
+  },
+  "homepage": "https://github.com/MysticBao/biliSpider#readme"
+}
