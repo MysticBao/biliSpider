@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/MysticBao/biliSpider/issues"
   },
-  "homepage": "https://github.com/MysticBao/biliSpider#readme"
+  "homepage": "https://github.com/MysticBao/biliSpider#readme",
+  "dependencies": {
+    "request": "^2.79.0"
+  }
 }
