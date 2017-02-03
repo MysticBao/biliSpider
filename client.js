@@ -13,9 +13,12 @@ function handleRequest(){
     // console.log(request_url)
     request(request_url,function(error,response,body){
             if(response.statusCode==200){
-                var resJson = JSON.parse(body)
+                // unescape(str.replace(/\u/g, "%u"));
+                // unicode 转换
+                var resJson = JSON.parse(unescape(body.replace(/\\u/g, '%u')))
                 // console.log(resJson)
                 var dataJson = resJson.data
+                //第一个请求获取总数量和每次请求的返回量
                 if(pn==1){
                     var pageObj = dataJson.page
                     // console.log(pageObj)
@@ -24,22 +27,28 @@ function handleRequest(){
                     console.log('Total Page Number: ' + total_pn)
                 }
                 handleData(dataJson)
+                console.log('Request Count: ' + pn)
                 pn += 1
             }else{
                 console.log('Error log: ' + error)
                 return
             }
-
             if(total_pn!=PN_MAX && pn>total_pn){
                 return
             }else{
-                handleRequest()
+                //handleRequest()
             }
     })
 }
 
 function handleData(data){
     var dataArray = []
+    var archivesJson = data.archives
+
+    for(var key in archivesJson){
+        // console.log(key+': ' + JSON.stringify(archivesJson[key]))
+    }
+    return
 }
 
 function setParamData(tid,pn){
