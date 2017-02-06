@@ -3,45 +3,60 @@ var request = require('request')
 const LZXF_TID = 33
 //完结动画
 const WZDH_TID = 32
-const PN_MAX = 999999
-var pn = 1
-var total_pn = PN_MAX 
 
- //递归Request方法 pn+1             
-function handleRequest(){
-    var request_url = setParamData(LZXF_TID,pn)
-    // console.log(request_url)
-    request(request_url,function(error,response,body){
-            if(response.statusCode==200){
-                // unescape(str.replace(/\u/g, "%u"));
-                // unicode 转换
-                var resJson = JSON.parse(unescape(body.replace(/\\u/g, '%u')))
-                // console.log(resJson)
-                var dataJson = resJson.data
-                //第一个请求获取总数量和每次请求的返回量
-                if(pn==1){
-                    var pageObj = dataJson.page
-                    // console.log(pageObj)
-                    console.log('Total count: ' + pageObj.count)                  
-                    total_pn = Math.ceil(pageObj.count / pageObj.size)
-                    console.log('Total Page Number: ' + total_pn)
-                }
-                handleData(dataJson)
-                console.log('Request Count: ' + pn)
-                pn += 1
-            }else{
-                console.log('Error log: ' + error)
-                return
-            }
-            if(total_pn!=PN_MAX && pn>total_pn){
-                return
-            }else{
-                //handleRequest()
-            }
+function handleRequest(typeId){
+    var requests = []
+    // 获取pn的数量
+    getPageNumbers(typeId).then((total_pn)=>{
+        console.log(total_pn)
+        // 申明request
+        for(let i=1;i<=total_pn;i++){
+            let p = new Promise((reslove,reject)=>{
+                request(setParamData(typeId,i),(error,response,body)=>{
+                    if(response.statusCode==200){
+                        //console.log('send: ' + i)
+                        reslove(body)
+                    }else{
+                        reject(response.statusText)
+                    }
+                })
+            })
+            // add promise
+            //console.log('add ' + i)
+            requests.push(p)
+        }
+
+        // 数据处理
+        Promise.all(requests).then((values)=>{
+            values.forEach((value)=>{
+                let resJson = JSON.parse(value)
+                let dataJson = resJson.data
+                let pageObj = dataJson.page
+                console.log(JSON.stringify(pageObj))
+            })
+        })
     })
 }
 
-function handleData(data){
+function getPageNumbers(typeId){
+    var p = new Promise((reslove,reject)=>{
+          request(setParamData(typeId,1),(error,response,body)=>{
+            if(response.statusCode==200){
+                let resJson = JSON.parse(body)
+                let dataJson = resJson.data
+                let pageObj = dataJson.page
+                console.log('Total count: ' + pageObj.count)                  
+                reslove(Math.ceil(pageObj.count / pageObj.size))
+            }else{
+                reject(error)
+            }
+        })
+    })
+    
+    return p
+}
+
+function handleData(datas){
     var dataArray = []
     var archivesJson = data.archives
 
@@ -52,8 +67,7 @@ function handleData(data){
 }
 
 function setParamData(tid,pn){
-    var url = 'http://api.bilibili.com/archive_rank/getarchiverankbypartion?type=jsonp&tid={tid}&pn={pn}'
-    return url.replace('{tid}',tid).replace('{pn}',pn)
+    return `http://api.bilibili.com/archive_rank/getarchiverankbypartion?type=jsonp&tid=${tid}&pn=${pn}`
 }
 
 /*
@@ -64,4 +78,4 @@ request('http://www.google.com', function (error, response, body) {
 })
  */
 
-handleRequest();
+handleRequest(WZDH_TID);
