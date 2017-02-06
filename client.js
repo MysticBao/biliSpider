@@ -29,17 +29,17 @@ function handleRequest(typeId){
         // 数据处理
         Promise.all(requests).then((values)=>{
             values.forEach((value)=>{
-                let resJson = JSON.parse(value)
-                let dataJson = resJson.data
-                let pageObj = dataJson.page
-                console.log(JSON.stringify(pageObj))
+                // let resJson = JSON.parse(value)
+                // let dataJson = resJson.data
+                // let pageObj = dataJson.page
+                // console.log(JSON.stringify(pageObj))
             })
         })
     })
 }
 
 function getPageNumbers(typeId){
-    var p = new Promise((reslove,reject)=>{
+    return new Promise((reslove,reject)=>{
           request(setParamData(typeId,1),(error,response,body)=>{
             if(response.statusCode==200){
                 let resJson = JSON.parse(body)
@@ -52,18 +52,6 @@ function getPageNumbers(typeId){
             }
         })
     })
-    
-    return p
-}
-
-function handleData(datas){
-    var dataArray = []
-    var archivesJson = data.archives
-
-    for(var key in archivesJson){
-        // console.log(key+': ' + JSON.stringify(archivesJson[key]))
-    }
-    return
 }
 
 function setParamData(tid,pn){
