@@ -14,7 +14,7 @@ function handleRequest(typeId){
             let p = new Promise((reslove,reject)=>{
                 request(setParamData(typeId,i),(error,response,body)=>{
                     if(response.statusCode==200){
-                        //console.log('send: ' + i)
+                        console.log('send: ' + i)
                         reslove(body)
                     }else{
                         reject(response.statusText)
@@ -22,32 +22,35 @@ function handleRequest(typeId){
                 })
             })
             // add promise
-            //console.log('add ' + i)
+            console.log('add ' + i)
             requests.push(p)
         }
 
         // 数据处理
         Promise.all(requests).then((values)=>{
-            values.forEach((value)=>{
+            values.forEach((value)=>{                
                 // let resJson = JSON.parse(value)
                 // let dataJson = resJson.data
                 // let pageObj = dataJson.page
                 // console.log(JSON.stringify(pageObj))
             })
         })
+    }).catch((error)=>{
+        console.log(error)
     })
 }
 
 function getPageNumbers(typeId){
     return new Promise((reslove,reject)=>{
           request(setParamData(typeId,1),(error,response,body)=>{
-            if(response.statusCode==200){
+            if(!error && response.statusCode==200){
                 let resJson = JSON.parse(body)
                 let dataJson = resJson.data
                 let pageObj = dataJson.page
                 console.log('Total count: ' + pageObj.count)                  
                 reslove(Math.ceil(pageObj.count / pageObj.size))
             }else{
+                console.log('Failed Execute API...')
                 reject(error)
             }
         })
