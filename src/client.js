@@ -1,72 +1,66 @@
-var request = require('request')
-//连载新番
-const LZXF_TID = 33
-//完结动画
-const WZDH_TID = 32
+import _ from 'lodash'
+import rp from 'request-promise'
+import fs from 'fs'
 
-function handleRequest(typeId){
-    var requests = []
-    // 获取pn的数量
-    getPageNumbers(typeId).then((total_pn)=>{
-        console.log(total_pn)
-        // 申明request
-        for(let i=1;i<=total_pn;i++){
-            let p = new Promise((reslove,reject)=>{
-                request(setParamData(typeId,i),(error,response,body)=>{
-                    if(response.statusCode==200){
-                        console.log('send: ' + i)
-                        reslove(body)
-                    }else{
-                        reject(response.statusText)
-                    }
-                })
-            })
-            // add promise
-            console.log('add ' + i)
-            requests.push(p)
+// get api request url
+function fetchSearchPage(type, pageNo) {
+  return rp(`http://api.bilibili.com/archive_rank/getarchiverankbypartion?type=jsonp&tid=${type}&pn=${pageNo}`)
+}
+// get page numbers
+function handleSearchPage(content) {
+    content = JSON.parse(content)
+    let count = content.data.page.count
+    let size = content.data.page.size
+    let tid = content.data.archives[0].tid
+    return {
+        tid: tid,
+        maxPageNo: Math.ceil(count / size)
+    }
+}
+// excute by pageNo
+function processTotalSearchResult(arg) {
+    let range = _.range(1,arg.maxPageNo)
+    let requests = range.map((pageNo) => {
+        return fetchSearchPage(arg.tid,pageNo)
+        .then((response) => {
+            return filterData(response)
+        })
+    })
+    return Promise.all(requests)
+}
+function filterData(data) {
+    data = JSON.parse(data)
+    let archives = data.data.archives
+    let items = []
+    _.forEach(archives,(archive, key) => {
+        let item = {
+            aid: archive.aid,
+            tid: archive.tid,
+            tname: archive.tname,
+            title: archive.title,
+            author: archive.author,
+            view: archive.stat.view,
+            danmku: archive.stat.danmaku,
+            favorite: archive.stat.favorite,
+            coin: archive.stat.coin
         }
-
-        // 数据处理
-        Promise.all(requests).then((values)=>{
-            values.forEach((value)=>{                
-                // let resJson = JSON.parse(value)
-                // let dataJson = resJson.data
-                // let pageObj = dataJson.page
-                // console.log(JSON.stringify(pageObj))
-            })
-        })
-    }).catch((error)=>{
-        console.log(error)
+        items.push(item)
     })
+    return items
+}
+function storeResult (data) {
+  let result = _.concat(data)
+  result = _.flattenDeep(result)
+  fs.writeFile('data.json', JSON.stringify(result))
+  console.log('Write Data')
+}
+function execute(type){
+    console.log('-----Start-----')
+    Promise.resolve(fetchSearchPage(type,1))
+    .then(handleSearchPage)
+    .then(processTotalSearchResult)
+    .then(storeResult)
+    .catch((err) => console.error(err))
 }
 
-function getPageNumbers(typeId){
-    return new Promise((reslove,reject)=>{
-          request(setParamData(typeId,1),(error,response,body)=>{
-            if(!error && response.statusCode==200){
-                let resJson = JSON.parse(body)
-                let dataJson = resJson.data
-                let pageObj = dataJson.page
-                console.log('Total count: ' + pageObj.count)                  
-                reslove(Math.ceil(pageObj.count / pageObj.size))
-            }else{
-                console.log('Failed Execute API...')
-                reject(error)
-            }
-        })
-    })
-}
-
-function setParamData(tid,pn){
-    return `http://api.bilibili.com/archive_rank/getarchiverankbypartion?type=jsonp&tid=${tid}&pn=${pn}`
-}
-
-/*
-request('http://www.google.com', function (error, response, body) {
-  if (!error && response.statusCode == 200) {
-    console.log(body) // Show the HTML for the Google homepage.
-  }
-})
- */
-
-handleRequest(WZDH_TID);
+execute(32)
