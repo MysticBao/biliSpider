@@ -48,7 +48,7 @@ function filterData(data) {
     })
     return items
 }
-function storeResult (data) {
+function storeResult(data) {
   let result = _.concat(data)
   result = _.flattenDeep(result)
   fs.writeFile('data.json', JSON.stringify(result))
