@@ -2,6 +2,7 @@ import sqlite3 from 'sqlite3'
 
 var db = new sqlite3.Database('./data.db')
 
+// create data db
 function createDataDB(){
     db.run('CREATE TABLE IF NOT EXISTS detail('
         +'aid TEXT PRIMARY KEY'
@@ -15,6 +16,7 @@ function createDataDB(){
         +', coin INTEGER)')
 }
 
+// create top10 table
 function createTop10DB(){
     db.run('CREATE TABLE IF NOT EXISTS top10('
         +'year INTEGER'

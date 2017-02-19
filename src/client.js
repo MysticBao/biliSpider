@@ -54,6 +54,9 @@ function storeResult(data) {
   fs.writeFile('data.json', JSON.stringify(result))
   console.log('Write Data')
 }
+function updateTop10(data){
+    
+}
 function execute(type){
     console.log('-----Start-----')
     Promise.resolve(fetchSearchPage(type,1))
