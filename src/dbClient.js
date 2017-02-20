@@ -1,38 +1,44 @@
 import sqlite3 from 'sqlite3'
 
-var DBClient = {
-    db: null,
-    getDB: function() {
-        return this.db
-    },
-    init: function() {
-        if(this.db ===null)
-            this.db = new sqlite3.Database('./data.db')
-    },
-    query: function(sql) {
-        var result = new Promise((resolve,reject) => {
-            db.all(sql, (err,res) => {
-                if(!err){
-                    resolve(res)
+var db = new sqlite3.Database('./data.db') 
+
+function init() {
+    if(db === null) {
+        db = new sqlite3.Database('./data.db')
+    }
+}
+function query(sql) {
+    return new Promise((resolve,reject) => {
+        db.all(sql, (err,res) => {
+            if(!err) {
+                resolve(res)
+            }else{
+                reject(err)
+            }
+        })   
+    })   
+}
+function upsert(sql,datas) {
+    return new Promise((resolve,reject) => {
+        datas.forEach((data) =>{
+            db.run(sql, data, (err) => {
+                if(!err) {
+                    resolve(true)
                 }else{
                     reject(err)
                 }
-            })   
+            })
         })
-        result.then((data) =>{
-            this.syncData(data)
-        }).catch((err) => {
-            console.error(err)
-        })     
-    },
-    upsert: function(sql,data) {
-        db.run(sql,data)
-    },
-    syncData: function() {
-
-    },
-    close: function() {
-        this.db.close()
-    }
+    })
+}
+function syncData() {
 
 }
+function close() {
+    db.close()
+}
+
+exports.init = init
+exports.query = query
+exports.upsert = upsert
+exports.close = close

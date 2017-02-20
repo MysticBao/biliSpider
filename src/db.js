@@ -1,6 +1,7 @@
 import sqlite3 from 'sqlite3'
+import dbClient from './dbClient.js'
 
-var db = new sqlite3.Database('./data.db')
+// var db = new sqlite3.Database('./data.db')
 
 // create data db
 function createDataDB(){
@@ -32,9 +33,9 @@ function createTop10DB(){
         +', coin INTEGER)')
 }
 
-createDataDB()
-createTop10DB()
-db.close()
+// createDataDB()
+// createTop10DB()
+// db.close()
 // 测试
 // function createDB(){
 //     db.run("CREATE TABLE IF NOT EXISTS data(name TEXT PRIMARY KEY,remark TEXT)");
@@ -59,3 +60,17 @@ db.close()
 // insertRow()
 // query()
 // closeDB()
+
+
+
+dbClient.init()
+dbClient.query('SELECT * FROM table01').then((data) => {
+    console.log(data)
+})
+
+var datas = [['aaa','aaa','aaa'],['bbb','bbb','bbb']]
+dbClient.upsert('INSERT OR REPLACE INTO table01(name,remark) VALUES (COALESCE((SELECT name FROM table01 WHERE name = ?), ?),?)',datas)
+
+dbClient.query('SELECT * FROM table01').then((data) => {
+    console.log(data)
+})
