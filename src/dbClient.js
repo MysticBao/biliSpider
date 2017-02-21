@@ -3,33 +3,33 @@ import sqlite3 from 'sqlite3'
 var db = new sqlite3.Database('./data.db') 
 
 function init() {
-    if(db === null) {
+    if(db === null)
         db = new sqlite3.Database('./data.db')
-    }
 }
 function query(sql) {
     return new Promise((resolve,reject) => {
-        db.all(sql, (err,res) => {
-            if(!err) {
+        db.run(sql, (err,res) => {
+            if(!err) 
                 resolve(res)
-            }else{
+            else
                 reject(err)
-            }
         })   
     })   
 }
-function upsert(sql,datas) {
-    return new Promise((resolve,reject) => {
-        datas.forEach((data) =>{
-            db.run(sql, data, (err) => {
-                if(!err) {
-                    resolve(true)
-                }else{
+function upsert(datas) {
+    let upserts = []
+    let sql = ''
+    datas.forEach((data) =>{
+        let item = []   
+        let upsert = new Promise((resolve,reject) => {
+            db.run(sql, item, (err)=> {
+                if(err)
                     reject(err)
-                }
             })
         })
+        upserts.push(upsert)
     })
+    return Promise.all(upserts)   
 }
 function syncData() {
 
