@@ -4,6 +4,7 @@ import fs from 'fs'
 
 // get api request url
 function fetchSearchPage(type, pageNo) {
+  console.log(pageNo)
   return rp(`http://api.bilibili.com/archive_rank/getarchiverankbypartion?type=jsonp&tid=${type}&pn=${pageNo}`)
 }
 // get page numbers
@@ -49,10 +50,10 @@ function filterData(data) {
     return items
 }
 function storeResult(data) {
-  let result = _.concat(data)
-  result = _.flattenDeep(result)
-  fs.writeFile('data.json', JSON.stringify(result))
-  console.log('Write Data')
+//   let result = _.concat(data)
+//   result = _.flattenDeep(result)
+//   fs.writeFile('data.json', JSON.stringify(result))
+//   console.log('Write Data')
 }
 function updateTop10(data){
     
@@ -67,3 +68,6 @@ function execute(type){
 }
 
 execute(32)
+
+// exports.execute = execute
+// exports.fetchSearchPage = fetchSearchPage

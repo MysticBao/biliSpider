@@ -1,5 +1,23 @@
 import sqlite3 from 'sqlite3'
 
+class DBClient {
+    constructor(dbFile = './data.db'){
+        this.db = new sqlite3.Database(dbFile)
+    }
+    query(sql) {
+
+    }
+    upsert(sql) {
+
+    }
+    syncTop10Data(sql) {
+
+    }
+    close() {
+        this.db.close()
+    }
+}
+
 var db = new sqlite3.Database('./data.db') 
 
 function init() {
@@ -20,6 +38,7 @@ function upsert(datas) {
     let upserts = []
     let sql = ''
     datas.forEach((data) =>{
+        // ['value1','value2','value3','value4']
         let item = []   
         let upsert = new Promise((resolve,reject) => {
             db.run(sql, item, (err)=> {
